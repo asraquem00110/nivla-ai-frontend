@@ -1,0 +1,13 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": ["commitlint", "degit", "Nuqs", "npm", "sonner", "tanstack", "Todos", "zustand"],
+  "ignorePaths": [
+    "node_modules/",
+    "dist/",
+    ".vscode/",
+    ".husky",
+    "package-lock.json",
+    "package.json"
+  ]
+}
