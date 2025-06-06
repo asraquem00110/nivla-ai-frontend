@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { NuqsAdapter } from 'nuqs/adapters/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@/App.css';
 
 // Import the generated route tree
@@ -17,6 +18,8 @@ declare module '@tanstack/react-router' {
   }
 }
 
+// Create a client
+const queryClient = new QueryClient();
 // Render the app
 const rootElement = document.getElementById('root')!;
 if (!rootElement.innerHTML) {
@@ -24,7 +27,9 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <NuqsAdapter>
-        <RouterProvider router={router} />
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
       </NuqsAdapter>
     </StrictMode>
   );

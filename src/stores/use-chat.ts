@@ -12,12 +12,15 @@ type FileMeta = {
 export type ChatStoreState = {
   theme: 'light' | 'dark' | 'system';
   fileList: FileMeta[];
+  chatResponse: string;
 };
 
 export type ChatStoreActions = {
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
   setFileList: (files: File[]) => void;
   appendFile: (file: File) => void;
+  setChatResponse: (response: string) => void;
+  clearChatResponse: () => void;
 };
 
 export type ChatStore = ChatStoreState & ChatStoreActions;
@@ -25,6 +28,7 @@ export type ChatStore = ChatStoreState & ChatStoreActions;
 export const DEFAULT_CHAT_STORE_STATE: ChatStoreState = {
   theme: 'system',
   fileList: [],
+  chatResponse: '',
 };
 
 export const useChatStore = create<ChatStore>()(
@@ -50,6 +54,16 @@ export const useChatStore = create<ChatStore>()(
             type: file.type,
             lastModified: file.lastModified,
           });
+          return state;
+        }),
+      setChatResponse: (response: string) =>
+        set(state => {
+          state.chatResponse = state.chatResponse + response;
+          return state;
+        }),
+      clearChatResponse: () =>
+        set(state => {
+          state.chatResponse = '';
           return state;
         }),
     })),

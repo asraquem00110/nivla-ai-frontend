@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ChatContainer from '@/components/chat/chat-container';
 import ChatHeader from '@/components/chat/chat-header';
 import MessageList from '@/components/chat/message-list';
@@ -7,27 +7,72 @@ import ChatInput from '@/components/chat/chat-input';
 import { cn } from '@/lib/utils';
 import Header from '@/components/header';
 import type { Prompt } from '@/types/Prompt';
+import { usePostStream } from '@/hooks/use-post-stream';
+import { useChatStore } from '@/stores';
 
 export const Route = createFileRoute('/')({
   component: Index,
 });
 
+class MemoryResponse {
+  private _message: string = '';
+
+  // Getter
+  get message(): string {
+    return this._message;
+  }
+
+  set message(message: string) {
+    this._message = this.message + message;
+  }
+}
+
 function Index() {
+  const memoryResponse = new MemoryResponse();
+
+  const setChatResponse = useChatStore(state => state.setChatResponse);
+  const clearChatResponse = useChatStore(state => state.clearChatResponse);
+
   const [messages, setMessages] = useState<Array<Prompt>>([
-    { role: 'system', message: 'You are NivlA AI, a helpful assistant.' }, // system message
-    { role: 'assistant', message: 'Hello! How can I help you today?' },
+    {
+      role: 'system',
+      message:
+        "You are NivlA AI, a helpful assistant. Answer only the user's most recent question.",
+      tools: [],
+    }, // system message
+    { role: 'assistant', message: 'Hello! How can I help you today?', tools: [] },
   ]);
 
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 
+  const { start, stop, isStreaming, error } = usePostStream({
+    messages: messages, // or your Prompt[] input
+    tools: [], // or your PromptTools[] input
+    onMessage: (chunk, stream) => {
+      setChatResponse(chunk);
+      memoryResponse.message = chunk;
+      if (stream === 'stop') {
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'assistant',
+            message: memoryResponse.message.replace(/<think>.*?<\/think>/gs, ''),
+            tools: [],
+          },
+        ]);
+        console.log('CHAT RESPONSE IS:', memoryResponse.message);
+        clearChatResponse();
+      }
+    },
+  });
   const handleSend = (message: string) => {
-    setMessages(prev => [
-      ...prev,
-
-      { role: 'user', message },
-      { role: 'assistant', message: 'NivlA AI said: ' + message }, // mock reply
-    ]);
+    setMessages(prev => [...prev, { role: 'user', message }]);
   };
+
+  useEffect(() => {
+    if (messages[messages.length - 1]?.role === 'user') start();
+  }, [messages]);
+
   return (
     <div>
       {/* Burger icon for toggling sidebar */}
@@ -53,8 +98,9 @@ function Index() {
         <Header isSideNavOpen={sidebarOpen} />
         <div className={cn(sidebarOpen ? 'ml-[300px]' : '', 'flex flex-1 flex-col p-4')}>
           <ChatContainer>
-            <MessageList messages={messages} />
+            <MessageList messages={messages} isStreaming={isStreaming} />
           </ChatContainer>
+
           <ChatInput onSend={handleSend} isSideNavOpen={sidebarOpen} />
         </div>
       </div>
