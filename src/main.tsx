@@ -7,6 +7,7 @@ import '@/App.css';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
+import { MCPClientProvider } from './providers/MCPClientProvider';
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -28,7 +29,9 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <NuqsAdapter>
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
+          <MCPClientProvider>
+            <RouterProvider router={router} />
+          </MCPClientProvider>
         </QueryClientProvider>
       </NuqsAdapter>
     </StrictMode>
