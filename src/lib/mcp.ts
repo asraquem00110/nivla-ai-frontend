@@ -1,6 +1,11 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
-import { LoggingMessageNotificationSchema, type Tool } from '@modelcontextprotocol/sdk/types.js';
+import {
+  LoggingMessageNotificationSchema,
+  type CallToolResult,
+  type CompatibilityCallToolResult,
+  type Tool,
+} from '@modelcontextprotocol/sdk/types.js';
 import type { MCPClientInterface } from './mcp-types';
 
 export class MCPClient implements MCPClientInterface {
@@ -94,7 +99,10 @@ export class MCPClient implements MCPClientInterface {
     }
   }
 
-  async callTool(name: string, arguments_: Record<string, any>) {
+  async callTool(
+    name: string,
+    arguments_: Record<string, any>
+  ): Promise<CallToolResult | CompatibilityCallToolResult> {
     try {
       if (!this.transport) {
         throw new Error('Not connected to MCP server');
