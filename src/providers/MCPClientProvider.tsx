@@ -14,7 +14,7 @@ interface Props {
 export const MCPClientProvider: React.FC<Props> = ({ children }: Props) => {
   useEffect(() => {
     async function connect() {
-      const mcpClient = new MCPClient();
+      const mcpClient = new MCPClient('http://localhost:3002/mcp');
       await mcpClient.connectToServer();
 
       const tools = await mcpClient.tools;

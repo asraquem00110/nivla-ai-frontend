@@ -1,20 +1,20 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { LoggingMessageNotificationSchema, type Tool } from '@modelcontextprotocol/sdk/types.js';
+import type { MCPClientInterface } from './mcp-types';
 
-export class MCPClient {
+export class MCPClient implements MCPClientInterface {
   private mcp: Client;
   private transport: StreamableHTTPClientTransport | null = null;
   private _tools: Tool[] = [];
-  private _serverUrl: string = 'http://localhost:3002/mcp';
-  private _notificationsToolLastEventId: string | undefined = undefined;
-  private _sessionId: string | undefined = undefined;
+  private _serverUrl: string;
 
-  constructor() {
+  constructor(serverUrl: string) {
     this.mcp = new Client({
       name: 'local-mcp-client',
       version: '1.0.0',
     });
+    this._serverUrl = serverUrl;
   }
 
   get tools() {
