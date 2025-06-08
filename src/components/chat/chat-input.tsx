@@ -1,8 +1,9 @@
 import { cn } from '@/lib/utils';
 import { useChatStore } from '@/stores';
 import { useState } from 'react';
-import { FaPaperclip, FaSliders } from 'react-icons/fa6';
+import { FaPaperclip, FaSliders, FaGear } from 'react-icons/fa6';
 import Modal from '../modals/modal';
+import { useMCPStore, type MCPStoreState } from '@/stores/use-mcp';
 
 export default function ChatInput({
   onSend,
@@ -12,7 +13,11 @@ export default function ChatInput({
   isSideNavOpen?: boolean;
 }) {
   const appendFile = useChatStore(state => state.appendFile);
+  const removeFile = useChatStore(state => state.removeFile);
   const fileList = useChatStore(state => state.fileList);
+  const setTool = useChatStore(state => state.setTool);
+  const tool = useChatStore(state => state.tool);
+  const mcp = useMCPStore(state => state.mcp);
   const [input, setInput] = useState('');
   const [showToolModal, setShowToolModal] = useState(false);
 
@@ -29,10 +34,45 @@ export default function ChatInput({
     }
   };
 
+  const selectTool = (mcp: MCPStoreState['mcp'][number], index: number) => {
+    setShowToolModal(false);
+    const tool = mcp.tools[index].name;
+    setTool(tool);
+  };
+
   return (
     <>
       <Modal isOpen={showToolModal} onClose={() => setShowToolModal(false)}>
-        THIS IS A SAMPLE MODAL
+        <div className="w-[400px]">
+          <h2 className="mb-2 text-lg font-semibold">Available MCP Servers</h2>
+          <ul>
+            {Array.isArray(mcp) && mcp.length > 0 ? (
+              mcp.map((server: any, idx: number) => (
+                <li key={idx} className="mb-4 border-b pb-2">
+                  <div className="font-medium">{server.name || `Server ${idx + 1}`}</div>
+                  <span className="text-sm">Version: {server.version}</span>
+                  <div className="mt-1">
+                    <span className="text-sm font-semibold">Tools:</span>
+                    <ul className="mt-1 ml-4">
+                      {server.tools?.map((tool: any, tIdx: number) => (
+                        <li
+                          key={tIdx}
+                          className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 hover:bg-gray-100"
+                          onClick={() => selectTool(server, tIdx)}
+                        >
+                          <span className="font-medium">{tool.name}</span>
+                          <span className="ml-2 text-xs text-gray-500">{tool.description}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </li>
+              ))
+            ) : (
+              <li>No MCP servers found.</li>
+            )}
+          </ul>
+        </div>
       </Modal>
       <div
         className={cn(
@@ -51,20 +91,52 @@ export default function ChatInput({
         />
 
         <div className="flex flex-row">
-          <div className="mt-2 mr-5 flex-1">
+          <div className="mr-5 flex flex-1 flex-row items-center gap-2">
             {fileList.length > 0 && (
-              <div className="mb-2 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2">
                 {fileList.map((file, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center rounded bg-gray-200 px-2 py-1 text-sm text-gray-700"
+                    className="relative inline-flex items-center rounded bg-gray-200 px-2 py-1 text-sm text-gray-700"
                   >
                     {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                    <button
+                      type="button"
+                      className={cn(
+                        'absolute -top-2 -right-2 cursor-pointer rounded-full bg-white p-1 text-xs text-gray-500 hover:bg-gray-200'
+                      )}
+                      aria-label="Remove tool"
+                      onClick={() => removeFile(index)}
+                    >
+                      ×
+                    </button>
                   </span>
                 ))}
               </div>
             )}
+            {tool && (
+              <div className="relative flex flex-wrap gap-2">
+                <span
+                  key="tool-index"
+                  className="relative inline-flex items-center rounded bg-blue-100 px-2 py-1 text-sm text-blue-700"
+                >
+                  <FaGear className="mr-1 h-3 w-3" />
+                  {tool}
+                  <button
+                    type="button"
+                    className={cn(
+                      'absolute -top-2 -right-2 cursor-pointer rounded-full bg-white p-1 text-xs text-gray-500 hover:bg-gray-200'
+                    )}
+                    aria-label="Remove tool"
+                    onClick={() => setTool(undefined)}
+                  >
+                    ×
+                  </button>
+                </span>
+              </div>
+            )}
           </div>
+
           <label className="mr-3 flex cursor-pointer flex-row items-center justify-center">
             <FaPaperclip className="h-4 w-4" />
             <input

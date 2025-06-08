@@ -9,13 +9,13 @@ import {
 import type { MCPClientInterface } from './mcp-types';
 
 export class MCPClient implements MCPClientInterface {
-  private mcp: Client;
+  private _mcp: Client;
   private transport: StreamableHTTPClientTransport | null = null;
   private _tools: Tool[] = [];
   private _serverUrl: string;
 
   constructor(serverUrl: string) {
-    this.mcp = new Client({
+    this._mcp = new Client({
       name: 'local-mcp-client',
       version: '1.0.0',
     });
@@ -26,14 +26,16 @@ export class MCPClient implements MCPClientInterface {
     return this._tools;
   }
 
+  get mcp() {
+    return this._mcp;
+  }
+
   async connectToServer() {
     try {
-      this.mcp.onerror = error => {
+      this._mcp.onerror = error => {
         console.error('\x1b[31mClient error:', error, '\x1b[0m');
       };
 
-      // Add more detailed logging
-      console.log(`Attempting to connect to MCP server at: ${this._serverUrl}`);
       this.transport = new StreamableHTTPClientTransport(new URL(this._serverUrl), {
         requestInit: {
           headers: {
@@ -41,13 +43,11 @@ export class MCPClient implements MCPClientInterface {
           },
         },
       });
-      await this.mcp.connect(this.transport);
-
-      console.log('Successfully connected to MCP server');
+      await this._mcp.connect(this.transport);
 
       // Test basic functionality
       try {
-        const toolsResult = await this.mcp.listTools();
+        const toolsResult = await this._mcp.listTools();
         this._tools = toolsResult.tools.map(tool => {
           return {
             name: tool.name,
@@ -55,14 +55,6 @@ export class MCPClient implements MCPClientInterface {
             inputSchema: tool.inputSchema,
           };
         });
-
-        console.log(
-          'Connected to server with tools:',
-          this._tools.map(({ name, description }) => ({
-            name,
-            description,
-          }))
-        );
       } catch (toolsError) {
         console.warn('Failed to list tools, but connection seems established:', toolsError);
       }
@@ -90,7 +82,7 @@ export class MCPClient implements MCPClientInterface {
   async disconnect() {
     try {
       if (this.transport) {
-        await this.mcp.close();
+        await this._mcp.close();
         this.transport = null;
         console.log('Disconnected from MCP server');
       }
@@ -108,7 +100,7 @@ export class MCPClient implements MCPClientInterface {
         throw new Error('Not connected to MCP server');
       }
 
-      const result = await this.mcp.callTool({
+      const result = await this._mcp.callTool({
         name,
         arguments: arguments_,
       });
