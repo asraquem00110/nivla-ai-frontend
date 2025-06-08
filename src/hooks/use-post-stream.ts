@@ -29,6 +29,19 @@ export const usePostStream = (options: StreamOptions) => {
         headers: { 'Content-Type': 'application/json' },
         signal: controllerRef.current.signal,
       });
+      // Check if the response is streamable or normal JSON
+      const contentType = response.headers.get('content-type');
+      const isStream =
+        contentType &&
+        (contentType.includes('text/event-stream') || contentType.includes('text/plain'));
+
+      if (!isStream) {
+        // Handle normal JSON response
+        const responseJSON = await response.json();
+        console.log(responseJSON.message);
+        options.onMessage?.(responseJSON.message.content, 'stop');
+        return;
+      }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
