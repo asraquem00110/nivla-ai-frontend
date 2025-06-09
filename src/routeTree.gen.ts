@@ -16,6 +16,7 @@ import { Route as PublicLayoutImport } from './routes/_public/layout'
 import { Route as IndexImport } from './routes/index'
 import { Route as PublicSamplepublicImport } from './routes/_public/sample_public'
 import { Route as PublicUsersIndexImport } from './routes/_public/users/index'
+import { Route as PublicMapIndexImport } from './routes/_public/map/index'
 import { Route as PublicUsersRegisterImport } from './routes/_public/users/register'
 import { Route as PublicUsersLoginImport } from './routes/_public/users/login'
 import { Route as PublicUsersFetchUserIdImport } from './routes/_public/users/fetch.$userId'
@@ -48,6 +49,12 @@ const PublicSamplepublicRoute = PublicSamplepublicImport.update({
 const PublicUsersIndexRoute = PublicUsersIndexImport.update({
   id: '/users/',
   path: '/users/',
+  getParentRoute: () => PublicLayoutRoute,
+} as any)
+
+const PublicMapIndexRoute = PublicMapIndexImport.update({
+  id: '/map/',
+  path: '/map/',
   getParentRoute: () => PublicLayoutRoute,
 } as any)
 
@@ -115,6 +122,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicUsersRegisterImport
       parentRoute: typeof PublicLayoutImport
     }
+    '/_public/map/': {
+      id: '/_public/map/'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof PublicMapIndexImport
+      parentRoute: typeof PublicLayoutImport
+    }
     '/_public/users/': {
       id: '/_public/users/'
       path: '/users'
@@ -138,6 +152,7 @@ interface PublicLayoutRouteChildren {
   PublicSamplepublicRoute: typeof PublicSamplepublicRoute
   PublicUsersLoginRoute: typeof PublicUsersLoginRoute
   PublicUsersRegisterRoute: typeof PublicUsersRegisterRoute
+  PublicMapIndexRoute: typeof PublicMapIndexRoute
   PublicUsersIndexRoute: typeof PublicUsersIndexRoute
   PublicUsersFetchUserIdRoute: typeof PublicUsersFetchUserIdRoute
 }
@@ -146,6 +161,7 @@ const PublicLayoutRouteChildren: PublicLayoutRouteChildren = {
   PublicSamplepublicRoute: PublicSamplepublicRoute,
   PublicUsersLoginRoute: PublicUsersLoginRoute,
   PublicUsersRegisterRoute: PublicUsersRegisterRoute,
+  PublicMapIndexRoute: PublicMapIndexRoute,
   PublicUsersIndexRoute: PublicUsersIndexRoute,
   PublicUsersFetchUserIdRoute: PublicUsersFetchUserIdRoute,
 }
@@ -161,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/sample_public': typeof PublicSamplepublicRoute
   '/users/login': typeof PublicUsersLoginRoute
   '/users/register': typeof PublicUsersRegisterRoute
+  '/map': typeof PublicMapIndexRoute
   '/users': typeof PublicUsersIndexRoute
   '/users/fetch/$userId': typeof PublicUsersFetchUserIdRoute
 }
@@ -172,6 +189,7 @@ export interface FileRoutesByTo {
   '/sample_public': typeof PublicSamplepublicRoute
   '/users/login': typeof PublicUsersLoginRoute
   '/users/register': typeof PublicUsersRegisterRoute
+  '/map': typeof PublicMapIndexRoute
   '/users': typeof PublicUsersIndexRoute
   '/users/fetch/$userId': typeof PublicUsersFetchUserIdRoute
 }
@@ -184,6 +202,7 @@ export interface FileRoutesById {
   '/_public/sample_public': typeof PublicSamplepublicRoute
   '/_public/users/login': typeof PublicUsersLoginRoute
   '/_public/users/register': typeof PublicUsersRegisterRoute
+  '/_public/map/': typeof PublicMapIndexRoute
   '/_public/users/': typeof PublicUsersIndexRoute
   '/_public/users/fetch/$userId': typeof PublicUsersFetchUserIdRoute
 }
@@ -197,6 +216,7 @@ export interface FileRouteTypes {
     | '/sample_public'
     | '/users/login'
     | '/users/register'
+    | '/map'
     | '/users'
     | '/users/fetch/$userId'
   fileRoutesByTo: FileRoutesByTo
@@ -207,6 +227,7 @@ export interface FileRouteTypes {
     | '/sample_public'
     | '/users/login'
     | '/users/register'
+    | '/map'
     | '/users'
     | '/users/fetch/$userId'
   id:
@@ -217,6 +238,7 @@ export interface FileRouteTypes {
     | '/_public/sample_public'
     | '/_public/users/login'
     | '/_public/users/register'
+    | '/_public/map/'
     | '/_public/users/'
     | '/_public/users/fetch/$userId'
   fileRoutesById: FileRoutesById
@@ -258,6 +280,7 @@ export const routeTree = rootRoute
         "/_public/sample_public",
         "/_public/users/login",
         "/_public/users/register",
+        "/_public/map/",
         "/_public/users/",
         "/_public/users/fetch/$userId"
       ]
@@ -275,6 +298,10 @@ export const routeTree = rootRoute
     },
     "/_public/users/register": {
       "filePath": "_public/users/register.tsx",
+      "parent": "/_public"
+    },
+    "/_public/map/": {
+      "filePath": "_public/map/index.tsx",
       "parent": "/_public"
     },
     "/_public/users/": {

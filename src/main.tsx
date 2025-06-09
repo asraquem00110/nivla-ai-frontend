@@ -8,6 +8,8 @@ import '@/App.css';
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
 import { MCPClientProvider } from './providers/MCPClientProvider';
+import { ThemeProvider } from '@/providers/ThemeProvider';
+import { MapProvider } from 'react-map-gl/mapbox';
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -29,9 +31,13 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <NuqsAdapter>
         <QueryClientProvider client={queryClient}>
-          <MCPClientProvider>
-            <RouterProvider router={router} />
-          </MCPClientProvider>
+          <ThemeProvider>
+            <MCPClientProvider>
+              <MapProvider>
+                <RouterProvider router={router} />
+              </MapProvider>
+            </MCPClientProvider>
+          </ThemeProvider>
         </QueryClientProvider>
       </NuqsAdapter>
     </StrictMode>
