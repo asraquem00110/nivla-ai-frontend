@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Header from '@/components/header';
 import { SideNavigation } from '@/components/ui/sidebar';
 import { useTheme } from '@/hooks/use-theme-context';
@@ -19,7 +19,8 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import type { FillLayer } from 'mapbox-gl';
 import type { FeatureCollection } from 'geojson';
 import type { CircleLayer } from 'mapbox-gl';
-
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 export const Route = createFileRoute('/_public/map/')({
   component: RouteComponent,
 });
@@ -1211,6 +1212,62 @@ function RouteComponent() {
     mapRef?.current?.flyTo({ center: [-122.4, 37.8] });
   };
 
+  const updateArea = (evt: any) => {
+    const features = evt.features || (evt?.target && evt.target.getAll && evt.target.getAll());
+    console.log('FeatureCollection:', features);
+  };
+
+  useEffect(() => {
+    var Draw = new MapboxDraw({
+      displayControlsDefault: false,
+      controls: {
+        polygon: true,
+        trash: true, // Hide the delete (trash) button
+        line_string: true,
+        point: true,
+        combine_features: false,
+        uncombine_features: false,
+      },
+    });
+
+    if (mapRef.current) {
+      mapRef.current.addControl(Draw, 'top-left');
+
+      // Listen for create, update, and delete events
+      mapRef.current.on('draw.create', (e: any) => {
+        console.log('Draw created:', e.features);
+      });
+      mapRef.current.on('draw.update', (e: any) => {
+        console.log('Draw updated:', e.features);
+      });
+      mapRef.current.on('draw.delete', (e: any) => {
+        console.log('Draw deleted:', e.features);
+      });
+
+      mapRef.current.on('dblclick', () => {
+        // End drawing mode on double click
+        if (Draw.getMode() !== 'simple_select') {
+          Draw.changeMode('simple_select');
+
+          const features = Draw.getAll();
+          console.log('FeatureCollection:', features);
+
+          // Re-enable map interactions after drawing
+          const map = mapRef.current?.getMap?.();
+          if (map) {
+            map.boxZoom.enable();
+            map.doubleClickZoom.enable();
+            map.dragPan.enable();
+            map.dragRotate.enable();
+            map.keyboard.enable();
+            map.scrollZoom.enable();
+            map.touchZoomRotate.enable();
+          }
+        }
+      });
+    }
+  }, [mapRef.current]);
+
   return (
     <div>
       <SideNavigation />
@@ -1224,6 +1281,9 @@ function RouteComponent() {
               ref={mapRef}
               mapboxAccessToken={MAPBOX_TOKEN}
               {...viewState}
+              onClick={evt => {
+                // console.log(evt);
+              }}
               onMove={evt => setViewState(evt.viewState)}
               mapStyle="mapbox://styles/mapbox/light-v10"
               style={{ width: '100%', height: '100%' }}
