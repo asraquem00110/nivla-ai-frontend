@@ -93,11 +93,9 @@ function Index() {
       <div className={cn('main flex h-screen flex-col')}>
         <Header isSideNavOpen={sidebarOpen} />
         <div className={cn(sidebarOpen ? 'ml-[300px]' : '', 'flex flex-1 flex-col p-4')}>
-          {tool}
           <ChatContainer>
             <MessageList messages={messages} isStreaming={isStreaming} />
           </ChatContainer>
-
           <ChatInput onSend={handleSend} isSideNavOpen={sidebarOpen} />
         </div>
       </div>
