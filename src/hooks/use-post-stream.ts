@@ -39,6 +39,14 @@ export const usePostStream = (options: StreamOptions) => {
         // Handle normal JSON response
         const responseJSON = await response.json();
         console.log(responseJSON.message);
+        const tool_called = responseJSON.message.tool_calls;
+
+        if (tool_called) {
+          // Check if tools_called is available
+          // Abort Stream if yes
+          // Call MCP Server Tool
+          return;
+        }
         options.onMessage?.(responseJSON.message.content, 'stop');
         return;
       }
@@ -52,10 +60,12 @@ export const usePostStream = (options: StreamOptions) => {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value);
+        console.log(chunk);
         const lines = chunk.split('\n');
         for (const line of lines) {
           let content = '';
           let stream = '';
+          let tools_called = '';
           if (line.startsWith('data: ')) {
             content = JSON.parse(line.slice(6));
           }
@@ -63,6 +73,14 @@ export const usePostStream = (options: StreamOptions) => {
           if (line.startsWith('done_reason: ')) {
             stream = line.slice(13);
           }
+
+          if (line.startsWith('tools_called: ')) {
+            tools_called = line.slice(14);
+          }
+
+          // Check if tools_called is available
+          // Abort Stream if yes
+          // Call MCP Server Tool
 
           options.onMessage?.(content, stream);
         }

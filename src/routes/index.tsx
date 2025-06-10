@@ -12,6 +12,7 @@ import { useChatStore } from '@/stores';
 import { SideNavigation } from '@/components/ui/sidebar';
 import { useTheme } from '@/hooks/use-theme-context';
 import type { ThemeProviderContextType } from '@/providers/ThemeProvider';
+import { useMCPStore } from '@/stores/use-mcp';
 
 export const Route = createFileRoute('/')({
   component: Index,
@@ -36,6 +37,8 @@ function Index() {
 
   const setChatResponse = useChatStore(state => state.setChatResponse);
   const clearChatResponse = useChatStore(state => state.clearChatResponse);
+  const tool = useChatStore(state => state.tool);
+  const mcp = useMCPStore(state => state.mcp);
 
   const [messages, setMessages] = useState<Array<Prompt>>([
     {
@@ -49,19 +52,28 @@ function Index() {
 
   const { start, stop, isStreaming, error } = usePostStream({
     messages: messages, // or your Prompt[] input
-    tools: [], // or your PromptTools[] input
+    tools: tool
+      ? mcp[0].tools.filter(toolList => {
+          return toolList.name === tool;
+        })
+      : ([] as unknown as any), // or your PromptTools[] input
     onMessage: (chunk, stream) => {
       setChatResponse(chunk);
       memoryResponse.message = chunk;
+
       if (stream === 'stop') {
-        setMessages(prev => [
-          ...prev,
-          {
-            role: 'assistant',
-            message: memoryResponse.message.replace(/<think>.*?<\/think>/gs, ''),
-            tools: [],
-          },
-        ]);
+        const trimMessage = memoryResponse.message.replace(/<think>.*?<\/think>/gs, '').trim();
+        if (trimMessage !== '') {
+          setMessages(prev => [
+            ...prev,
+            {
+              role: 'assistant',
+              message: trimMessage,
+              tools: [],
+            },
+          ]);
+        }
+
         console.log('CHAT RESPONSE IS:', memoryResponse.message);
         clearChatResponse();
       }
@@ -81,6 +93,7 @@ function Index() {
       <div className={cn('main flex h-screen flex-col')}>
         <Header isSideNavOpen={sidebarOpen} />
         <div className={cn(sidebarOpen ? 'ml-[300px]' : '', 'flex flex-1 flex-col p-4')}>
+          {tool}
           <ChatContainer>
             <MessageList messages={messages} isStreaming={isStreaming} />
           </ChatContainer>
