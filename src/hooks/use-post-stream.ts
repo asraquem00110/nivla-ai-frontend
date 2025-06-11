@@ -1,6 +1,7 @@
 // usePostStream.ts
 import { useRef, useState } from 'react';
 import type { Prompt, PromptTools } from '@/types/Prompt';
+import { useChatStore } from '@/stores';
 
 type StreamOptions = {
   messages?: Prompt[];
@@ -10,6 +11,7 @@ type StreamOptions = {
 
 export const usePostStream = (options: StreamOptions) => {
   const controllerRef = useRef<AbortController | null>(null);
+  const clearChatResponse = useChatStore(state => state.clearChatResponse);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -99,6 +101,7 @@ export const usePostStream = (options: StreamOptions) => {
       }
     } finally {
       setIsStreaming(false);
+      clearChatResponse();
     }
   };
 

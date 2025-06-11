@@ -36,7 +36,6 @@ function Index() {
   const { sidebarOpen } = useTheme() as unknown as ThemeProviderContextType;
 
   const setChatResponse = useChatStore(state => state.setChatResponse);
-  const clearChatResponse = useChatStore(state => state.clearChatResponse);
   const tool = useChatStore(state => state.tool);
   const mcp = useMCPStore(state => state.mcp);
 
@@ -75,7 +74,6 @@ function Index() {
         }
 
         console.log('CHAT RESPONSE IS:', memoryResponse.message);
-        clearChatResponse();
       }
     },
   });
