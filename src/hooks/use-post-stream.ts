@@ -42,6 +42,8 @@ export const usePostStream = (options: StreamOptions) => {
         const tool_called = responseJSON.message.tool_calls;
         console.log(tool_called);
 
+        options.onMessage?.(responseJSON.message.content, 'stop');
+
         if (tool_called) {
           // Check if tools_called is available
           // Abort Stream if yes
@@ -50,7 +52,6 @@ export const usePostStream = (options: StreamOptions) => {
           setIsStreaming(false);
           return;
         }
-        options.onMessage?.(responseJSON.message.content, 'stop');
         return;
       }
 
@@ -81,16 +82,15 @@ export const usePostStream = (options: StreamOptions) => {
             tools_called = line.slice(14);
           }
 
+          options.onMessage?.(content, stream);
+
           if (tools_called && tools_called.trim() !== '' && tools_called.trim() !== 'undefined') {
             // Check if tools_called is available
             // Abort Stream if yes
             // Call MCP Server Tool
             console.log('CALLING MCP TOOL:', tools_called);
             controllerRef.current?.abort();
-            setIsStreaming(false);
           }
-
-          options.onMessage?.(content, stream);
         }
       }
     } catch (err: any) {
