@@ -59,6 +59,7 @@ export default function ChatInput({
                           key={tIdx}
                           className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 hover:bg-gray-100"
                           onClick={() => selectTool(server, tIdx)}
+                          title={tool.description}
                         >
                           <span className="font-medium">{tool.name}</span>
                           <span className="ml-2 text-xs text-gray-500">{tool.description}</span>
