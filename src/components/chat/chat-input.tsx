@@ -16,6 +16,7 @@ export default function ChatInput({
   const removeFile = useChatStore(state => state.removeFile);
   const fileList = useChatStore(state => state.fileList);
   const setTool = useChatStore(state => state.setTool);
+  const chatResponse = useChatStore(state => state.chatResponse);
   const tool = useChatStore(state => state.tool);
   const mcp = useMCPStore(state => state.mcp);
   const [input, setInput] = useState('');
@@ -83,7 +84,11 @@ export default function ChatInput({
         )}
       >
         <textarea
-          className="w-full resize-none rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          disabled={chatResponse.trim() !== ''}
+          className={cn(
+            `w-full resize-none rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none`,
+            chatResponse.trim() !== '' ? 'cursor-not-allowed bg-gray-200 text-gray-500' : ''
+          )}
           rows={2}
           value={input}
           onChange={e => setInput(e.target.value)}
