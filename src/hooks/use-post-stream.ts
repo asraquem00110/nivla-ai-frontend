@@ -15,6 +15,7 @@ export const usePostStream = (options: StreamOptions) => {
   const controllerRef = useRef<AbortController | null>(null);
   const clearChatResponse = useChatStore(state => state.clearChatResponse);
   const mcpClient = useMCPStore(state => state.mcpClient);
+  const setProcessingMcp = useMCPStore(state => state.setProcessingMcp);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -90,6 +91,7 @@ export const usePostStream = (options: StreamOptions) => {
 
           if (tools_called && tools_called.trim() !== '' && tools_called.trim() !== 'undefined') {
             console.log('START PROCESSING WITH TOOL ...');
+            setProcessingMcp(true);
             const parsedTool = JSON.parse(tools_called);
             if (!parsedTool) return;
             const toolSpecs = parsedTool[0].function as {
@@ -112,6 +114,7 @@ export const usePostStream = (options: StreamOptions) => {
             start()
               .then(res => {
                 console.log('END PROCESSING WITH TOOL ...');
+                setProcessingMcp(false);
               })
               .catch(err => {
                 console.log(err);

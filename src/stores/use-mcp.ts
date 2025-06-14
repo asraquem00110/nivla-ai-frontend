@@ -14,11 +14,13 @@ export type MCPState = {
 export type MCPStoreState = {
   mcp: MCPState[];
   mcpClient?: MCPClient;
+  processingMcp: boolean;
 };
 
 export type MCPStoreActions = {
   setMcp: (mcp: MCPState[]) => void;
   setMcpClient: (mcp: MCPClient) => void;
+  setProcessingMcp: (status: boolean) => void;
 };
 
 export type MCPStore = MCPStoreState & MCPStoreActions;
@@ -26,6 +28,7 @@ export type MCPStore = MCPStoreState & MCPStoreActions;
 export const DEFAULT_MCP_STORE_STATE: MCPStoreState = {
   mcp: [],
   mcpClient: undefined,
+  processingMcp: false,
 };
 
 export const useMCPStore = create<MCPStore>()(
@@ -40,6 +43,11 @@ export const useMCPStore = create<MCPStore>()(
       setMcpClient: (mcp: MCPClient) =>
         set(state => {
           state.mcpClient = mcp;
+          return state;
+        }),
+      setProcessingMcp: (status: boolean) =>
+        set(state => {
+          state.processingMcp = status;
           return state;
         }),
     })),

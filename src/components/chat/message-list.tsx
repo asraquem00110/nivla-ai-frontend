@@ -3,6 +3,7 @@ import MessageBubble from '@/components/chat/message-bubble';
 import { useChatStore } from '@/stores';
 import { Player, Controls } from '@lottiefiles/react-lottie-player';
 import TypingLottie from '@/assets/typing.json';
+import { useMCPStore } from '@/stores/use-mcp';
 
 type Props = {
   messages: { role?: string; message?: string }[];
@@ -12,6 +13,7 @@ type Props = {
 
 export default function MessageList({ messages, isStreaming = false, newestOnTop = false }: Props) {
   const chatReponse = useChatStore(state => state.chatResponse);
+  const processingMcp = useMCPStore(state => state.processingMcp);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when a new user message is added
@@ -39,11 +41,13 @@ export default function MessageList({ messages, isStreaming = false, newestOnTop
           return <MessageBubble key={idx} sender={msg.role} text={msg.message} />;
         }
       })}
-      {isStreaming && (
-        <Player autoplay loop src={TypingLottie} style={{ height: '100px', width: '100px' }}>
-          <Controls visible={false} buttons={['play', 'repeat', 'frame', 'debug']} />
-        </Player>
-      )}
+      {isStreaming ||
+        (processingMcp && (
+          <Player autoplay loop src={TypingLottie} style={{ height: '100px', width: '100px' }}>
+            <Controls visible={false} buttons={['play', 'repeat', 'frame', 'debug']} />
+          </Player>
+        ))}
+
       <span>{chatReponse}</span>
     </div>
   );
