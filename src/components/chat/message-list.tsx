@@ -35,7 +35,7 @@ export default function MessageList({ messages, isStreaming = false, newestOnTop
       }}
     >
       {displayMessages.map((msg, idx) => {
-        if (idx > 0) {
+        if (idx > 0 && !['tool'].includes(msg.role as string)) {
           return <MessageBubble key={idx} sender={msg.role} text={msg.message} />;
         }
       })}

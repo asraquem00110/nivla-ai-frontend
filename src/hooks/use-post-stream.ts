@@ -2,6 +2,8 @@
 import { useRef, useState } from 'react';
 import type { Prompt, PromptTools } from '@/types/Prompt';
 import { useChatStore } from '@/stores';
+import { useMCPStore } from '@/stores/use-mcp';
+import type { CallToolRequest, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 type StreamOptions = {
   messages?: Prompt[];
@@ -12,6 +14,7 @@ type StreamOptions = {
 export const usePostStream = (options: StreamOptions) => {
   const controllerRef = useRef<AbortController | null>(null);
   const clearChatResponse = useChatStore(state => state.clearChatResponse);
+  const mcpClient = useMCPStore(state => state.mcpClient);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -40,9 +43,8 @@ export const usePostStream = (options: StreamOptions) => {
       if (!isStream) {
         // Handle normal JSON response
         const responseJSON = await response.json();
-        console.log(responseJSON.message);
+
         const tool_called = responseJSON.message.tool_calls;
-        console.log(tool_called);
 
         options.onMessage?.(responseJSON.message.content, 'stop');
 
@@ -66,7 +68,7 @@ export const usePostStream = (options: StreamOptions) => {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value);
-        console.log(chunk);
+        // console.log(chunk);
         const lines = chunk.split('\n');
         for (const line of lines) {
           let content = '';
@@ -87,11 +89,33 @@ export const usePostStream = (options: StreamOptions) => {
           options.onMessage?.(content, stream);
 
           if (tools_called && tools_called.trim() !== '' && tools_called.trim() !== 'undefined') {
-            // Check if tools_called is available
-            // Abort Stream if yes
-            // Call MCP Server Tool
-            console.log('CALLING MCP TOOL:', tools_called);
+            console.log('START PROCESSING WITH TOOL ...');
+            const parsedTool = JSON.parse(tools_called);
+            if (!parsedTool) return;
+            const toolSpecs = parsedTool[0].function as {
+              name: string;
+              arguments: Record<string, any>;
+            };
+
             controllerRef.current?.abort();
+            const toolResponse = (await mcpClient?.callTool(
+              toolSpecs.name,
+              toolSpecs.arguments
+            )) as CallToolResult;
+
+            options.messages?.push({
+              role: 'tool',
+              // message: toolResponse.content[0].text as unknown as string,
+              message: `Context: ${toolResponse.content[0].text as unknown as string}\nQuestion: ${options.messages[options.messages.length - 1].message}`,
+            });
+
+            start()
+              .then(res => {
+                console.log('END PROCESSING WITH TOOL ...');
+              })
+              .catch(err => {
+                console.log(err);
+              });
           }
         }
       }

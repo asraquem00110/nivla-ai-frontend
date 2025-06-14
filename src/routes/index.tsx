@@ -82,7 +82,7 @@ function Index() {
   };
 
   useEffect(() => {
-    if (messages[messages.length - 1]?.role === 'user') start();
+    if (['user', 'tool'].includes(messages[messages.length - 1]?.role)) start();
   }, [messages]);
 
   return (

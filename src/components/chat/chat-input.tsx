@@ -44,7 +44,7 @@ export default function ChatInput({
   return (
     <>
       <Modal isOpen={showToolModal} onClose={() => setShowToolModal(false)}>
-        <div className="w-[400px]">
+        <div className="w-[500px]">
           <h2 className="mb-2 text-lg font-semibold">Available MCP Servers</h2>
           <ul>
             {Array.isArray(mcp) && mcp.length > 0 ? (
@@ -63,7 +63,9 @@ export default function ChatInput({
                           title={tool.description}
                         >
                           <span className="font-medium">{tool.name}</span>
-                          <span className="ml-2 text-xs text-gray-500">{tool.description}</span>
+                          <span className="ml-2 ml-auto text-xs text-gray-500">
+                            {tool.description}
+                          </span>
                         </li>
                       ))}
                     </ul>

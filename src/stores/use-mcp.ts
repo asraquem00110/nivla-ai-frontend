@@ -1,3 +1,5 @@
+import type { MCPClient } from '@/lib/mcp';
+import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -11,16 +13,19 @@ export type MCPState = {
 
 export type MCPStoreState = {
   mcp: MCPState[];
+  mcpClient?: MCPClient;
 };
 
 export type MCPStoreActions = {
   setMcp: (mcp: MCPState[]) => void;
+  setMcpClient: (mcp: MCPClient) => void;
 };
 
 export type MCPStore = MCPStoreState & MCPStoreActions;
 
 export const DEFAULT_MCP_STORE_STATE: MCPStoreState = {
   mcp: [],
+  mcpClient: undefined,
 };
 
 export const useMCPStore = create<MCPStore>()(
@@ -30,6 +35,11 @@ export const useMCPStore = create<MCPStore>()(
       setMcp: (mcp: MCPStoreState['mcp']) =>
         set(state => {
           state.mcp = mcp;
+          return state;
+        }),
+      setMcpClient: (mcp: MCPClient) =>
+        set(state => {
+          state.mcpClient = mcp;
           return state;
         }),
     })),
