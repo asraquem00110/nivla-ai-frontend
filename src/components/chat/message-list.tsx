@@ -3,6 +3,7 @@ import MessageBubble from '@/components/chat/message-bubble';
 import { useChatStore } from '@/stores';
 import { Player, Controls } from '@lottiefiles/react-lottie-player';
 import TypingLottie from '@/assets/typing.json';
+import LoadingLottie from '@/assets/loading.json';
 import { useMCPStore } from '@/stores/use-mcp';
 
 type Props = {
@@ -41,12 +42,26 @@ export default function MessageList({ messages, isStreaming = false, newestOnTop
           return <MessageBubble key={idx} sender={msg.role} text={msg.message} />;
         }
       })}
-      {isStreaming ||
-        (processingMcp && (
-          <Player autoplay loop src={TypingLottie} style={{ height: '100px', width: '100px' }}>
-            <Controls visible={false} buttons={['play', 'repeat', 'frame', 'debug']} />
-          </Player>
-        ))}
+      {isStreaming && (
+        <Player autoplay loop src={TypingLottie} style={{ height: '100px', width: '100px' }}>
+          <Controls visible={false} buttons={['play', 'repeat', 'frame', 'debug']} />
+        </Player>
+      )}
+
+      {processingMcp && (
+        <div className="relative rounded-lg bg-orange-100">
+          <MessageBubble
+            sender="system"
+            text="Processing MCP Tool"
+            style="bg-orange-100 text-orange-900"
+          />
+          <div className="absolute top-[-15px] right-[-10px]">
+            <Player autoplay loop src={LoadingLottie} style={{ height: '80px', width: '80px' }}>
+              <Controls visible={false} buttons={['play', 'repeat', 'frame', 'debug']} />
+            </Player>
+          </div>
+        </div>
+      )}
 
       <span>{chatReponse}</span>
     </div>

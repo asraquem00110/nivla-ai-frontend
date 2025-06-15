@@ -1,10 +1,13 @@
+import { cn } from '@/lib/utils';
 import React from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import style from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 type Props = {
   sender?: string;
   text?: string;
+  style?: string;
 };
 
 function parseMessage(text: string) {
@@ -30,18 +33,20 @@ function parseMessage(text: string) {
   return parts;
 }
 
-export default function MessageBubble({ sender, text = '' }: Props) {
+export default function MessageBubble({ sender, text = '', style = '' }: Props) {
   const isUser = sender === 'user';
   const parts = parseMessage(text);
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-2`}>
       <div
-        className={`max-w-lg rounded-lg px-4 py-2 ${
+        className={cn(
+          'max-w-lg rounded-lg px-4 py-2',
           isUser
             ? 'rounded-br-none bg-blue-500 text-white'
-            : 'rounded-bl-none bg-gray-200 text-gray-800'
-        }`}
+            : 'rounded-bl-none bg-gray-200 text-gray-800',
+          style
+        )}
       >
         {parts.map((part, idx) =>
           part.type === 'code' ? (
