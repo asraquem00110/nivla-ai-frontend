@@ -37,12 +37,6 @@ export const usePostStream = (options: StreamOptions) => {
       const response = await fetch('http://localhost:3001/send-message', {
         method: 'POST',
         body: formData,
-        // body: JSON.stringify({
-        //   messages: options.messages,
-        //   tools: options.tools,
-        //   file: fileList.length > 0 ? fileList[0].name : null, // Include file if available
-        // }),
-        // headers: { 'Content-Type': 'application/json' },
         signal: controllerRef.current.signal,
       });
       // Check if the response is streamable or normal JSON
