@@ -16,6 +16,7 @@ export const usePostStream = (options: StreamOptions) => {
   const clearChatResponse = useChatStore(state => state.clearChatResponse);
   const mcpClient = useMCPStore(state => state.mcpClient);
   const setProcessingMcp = useMCPStore(state => state.setProcessingMcp);
+  const setFileList = useChatStore(state => state.setFileList);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -129,6 +130,7 @@ export const usePostStream = (options: StreamOptions) => {
     } finally {
       setIsStreaming(false);
       clearChatResponse();
+      setFileList([]);
     }
   };
 
