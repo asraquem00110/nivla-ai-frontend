@@ -28,23 +28,21 @@ export const usePostStream = (options: StreamOptions) => {
     controllerRef.current = new AbortController();
 
     try {
+      const formData = new FormData();
+      formData.append('messages', JSON.stringify(options.messages || []));
+      formData.append('tools', JSON.stringify(options.tools || []));
       if (fileList.length > 0) {
-        console.log(fileList[0].file);
-        const formData = new FormData();
         formData.append('file', fileList[0].file as unknown as File);
-        await fetch('http://localhost:3001/file-upload', {
-          method: 'POST',
-          body: formData,
-        });
       }
-
       const response = await fetch('http://localhost:3001/send-message', {
         method: 'POST',
-        body: JSON.stringify({
-          messages: options.messages,
-          tools: options.tools,
-        }),
-        headers: { 'Content-Type': 'application/json' },
+        body: formData,
+        // body: JSON.stringify({
+        //   messages: options.messages,
+        //   tools: options.tools,
+        //   file: fileList.length > 0 ? fileList[0].name : null, // Include file if available
+        // }),
+        // headers: { 'Content-Type': 'application/json' },
         signal: controllerRef.current.signal,
       });
       // Check if the response is streamable or normal JSON
