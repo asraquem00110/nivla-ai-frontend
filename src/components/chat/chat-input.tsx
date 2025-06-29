@@ -148,6 +148,7 @@ export default function ChatInput({
           <label className="mr-3 flex cursor-pointer flex-row items-center justify-center">
             <FaPaperclip className="h-4 w-4" />
             <input
+              disabled={fileList.length > 0}
               type="file"
               accept=".pdf,.csv,.json,.doc,.docx,application/pdf,text/csv,application/json,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               className="hidden"

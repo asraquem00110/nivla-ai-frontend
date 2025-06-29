@@ -19,6 +19,7 @@ export const usePostStream = (options: StreamOptions) => {
   const setFileList = useChatStore(state => state.setFileList);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const fileList = useChatStore(state => state.fileList);
 
   const start = async () => {
     setIsStreaming(true);
@@ -27,6 +28,16 @@ export const usePostStream = (options: StreamOptions) => {
     controllerRef.current = new AbortController();
 
     try {
+      if (fileList.length > 0) {
+        console.log(fileList[0].file);
+        const formData = new FormData();
+        formData.append('file', fileList[0].file as unknown as File);
+        await fetch('http://localhost:3001/file-upload', {
+          method: 'POST',
+          body: formData,
+        });
+      }
+
       const response = await fetch('http://localhost:3001/send-message', {
         method: 'POST',
         body: JSON.stringify({

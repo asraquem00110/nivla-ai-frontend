@@ -7,6 +7,7 @@ type FileMeta = {
   size: number;
   type: string;
   lastModified: number;
+  file?: File;
 };
 
 export type ChatStoreState = {
@@ -57,6 +58,7 @@ export const useChatStore = create<ChatStore>()(
             size: file.size,
             type: file.type,
             lastModified: file.lastModified,
+            file,
           });
           return state;
         }),
