@@ -83,6 +83,7 @@ export class MCPClient implements MCPClientInterface {
     try {
       if (this.transport) {
         await this._mcp.close();
+        await this.transport.terminateSession();
         this.transport = null;
         console.log('Disconnected from MCP server');
       }

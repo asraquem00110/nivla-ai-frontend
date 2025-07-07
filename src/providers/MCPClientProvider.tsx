@@ -18,6 +18,7 @@ interface Props {
 export const MCPClientProvider: React.FC<Props> = ({ children }: Props) => {
   const setMcp = useMCPStore(state => state.setMcp);
   const setMcpClient = useMCPStore(state => state.setMcpClient);
+
   useEffect(() => {
     async function connect() {
       const MCP_SERVERS: Array<{
